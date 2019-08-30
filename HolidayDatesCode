@@ -1,0 +1,85 @@
+
+
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+If(OBJECT_ID('tempdb..#holiday') Is Not Null)
+Begin
+    Drop Table #holiday 
+End
+Create table #holiday (
+holiday varchar(20)
+,date date
+)
+
+
+--New Years
+insert into #holiday (date, holiday)
+values
+(case when datepart(weekday, cast( dateadd(yy, 1, (dateadd(dd, 1-datepart(dd,getdate()),DateAdd(mm,1-DatePart(mm,getdate()),getdate())))) as date)) = 1
+	then dateadd(dd, 1, cast( dateadd(yy, 1, (dateadd(dd, 1-datepart(dd,getdate()),DateAdd(mm,1-DatePart(mm,getdate()),getdate())))) as date))
+	else cast( dateadd(yy, 1, (dateadd(dd, 1-datepart(dd,getdate()),DateAdd(mm,1-DatePart(mm,getdate()),getdate())))) as date)
+end, 'New Years');
+
+--4th July
+insert into #holiday (date, holiday)
+values
+(case when datepart(weekday, cast( dateadd(yy, 1, (dateadd(dd, 4-datepart(dd,getdate()),DateAdd(mm,7-DatePart(mm,getdate()),getdate())))) as date) ) = 1
+	then dateadd(dd, 1, cast( dateadd(yy, 1, (dateadd(dd, 4-datepart(dd,getdate()),DateAdd(mm,7-DatePart(mm,getdate()),getdate())))) as date))
+	else cast( dateadd(yy, 1, (dateadd(dd, 4-datepart(dd,getdate()),DateAdd(mm,7-DatePart(mm,getdate()),getdate())))) as date)
+end
+,'4th July')
+
+--Christmas
+insert into #holiday (date, holiday)
+values
+(case when datepart(weekday, cast( dateadd(yy, 1, (dateadd(dd, 25-datepart(dd,getdate()),DateAdd(mm,12-DatePart(mm,getdate()),getdate())))) as date)) = 1
+	then dateadd(dd, 1, cast( dateadd(yy, 1, (dateadd(dd, 25-datepart(dd,getdate()),DateAdd(mm,12-DatePart(mm,getdate()),getdate())))) as date))
+	else cast( dateadd(yy, 1, (dateadd(dd, 25-datepart(dd,getdate()),DateAdd(mm,12-DatePart(mm,getdate()),getdate())))) as date)
+end
+,'Christmas')
+
+--Thanksgiving- fourth Thursday in November
+insert into #holiday (date, holiday)
+values
+(case 
+	when datepart(weekday,dateadd(yy, 1, (dateadd(dd, 1-datepart(dd,getdate()),DateAdd(mm,11-DatePart(mm,getdate()),getdate())))) ) between 1 and 5
+	then cast(dateadd(week,3,dateadd(weekday,5-datepart(weekday,dateadd(yy, 1, (dateadd(dd, 1-datepart(dd,getdate()),DateAdd(mm,11-DatePart(mm,getdate()),getdate()))))),
+		dateadd(yy, 1, (dateadd(dd, 1-datepart(dd,getdate()),DateAdd(mm,11-DatePart(mm,getdate()),getdate())))))) as date)
+	else cast(dateadd(week,2,dateadd(weekday,12-datepart(weekday,dateadd(yy, 1, (dateadd(dd, 1-datepart(dd,getdate()),DateAdd(mm,11-DatePart(mm,getdate()),getdate()))))),
+		dateadd(yy, 1, (dateadd(dd, 1-datepart(dd,getdate()),DateAdd(mm,11-DatePart(mm,getdate()),getdate())))))) as date)
+end
+,'Thanksgiving')
+
+--Labor Day- first Monday in September
+insert into #holiday (date, holiday)
+values
+(case
+	when datepart(weekday,dateadd(yy, 1, (dateadd(dd, 1-datepart(dd,getdate()),DateAdd(mm,9-DatePart(mm,getdate()),getdate()))))) in (1,2)
+	then cast(dateadd(weekday,2-datepart(weekday,dateadd(yy, 1, (dateadd(dd, 1-datepart(dd,getdate()),DateAdd(mm,9-DatePart(mm,getdate()),getdate()))))),
+		dateadd(yy, 1, (dateadd(dd, 1-datepart(dd,getdate()),DateAdd(mm,9-DatePart(mm,getdate()),getdate()))))) as date)
+	else cast(dateadd(weekday,9-datepart(weekday,dateadd(yy, 1, (dateadd(dd, 1-datepart(dd,getdate()),DateAdd(mm,9-DatePart(mm,getdate()),getdate()))))),
+		dateadd(yy, 1, (dateadd(dd, 1-datepart(dd,getdate()),DateAdd(mm,9-DatePart(mm,getdate()),getdate()))))) as date)
+end
+,'Labor Day')
+
+--Memorial Day- last Monday in May
+insert into #holiday (date, holiday)
+values
+(case
+	when datepart(weekday,dateadd(yy, 1, (dateadd(dd, 1-datepart(dd,getdate()),DateAdd(mm,6-DatePart(mm,getdate()),getdate()))))) in (1,2)
+	then cast(dateadd(week, -1,dateadd(weekday,2-datepart(weekday,dateadd(yy, 1, (dateadd(dd, 1-datepart(dd,getdate()),DateAdd(mm,6-DatePart(mm,getdate()),getdate()))))),
+		dateadd(yy, 1, (dateadd(dd, 1-datepart(dd,getdate()),DateAdd(mm,6-DatePart(mm,getdate()),getdate())))))) as date)
+	else cast(dateadd(week, -1, dateadd(weekday,9-datepart(weekday,dateadd(yy, 1, (dateadd(dd, 1-datepart(dd,getdate()),DateAdd(mm,6-DatePart(mm,getdate()),getdate()))))),
+		dateadd(yy, 1, (dateadd(dd, 1-datepart(dd,getdate()),DateAdd(mm,6-DatePart(mm,getdate()),getdate())))))) as date)
+end
+,'Memorial Day')
+
+
+select holiday, date
+from #holiday
+If(OBJECT_ID('tempdb..#holiday') Is Not Null)
+Begin
+    Drop Table #holiday 
+End
